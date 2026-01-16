@@ -1,4 +1,6 @@
+import json
 import logging
+import re
 
 import allure
 import requests
@@ -14,16 +16,57 @@ class ApiHelper:
         self.session = requests.Session()
 
     @staticmethod
-    def get_attach_data_response(response):
+    def log_request_and_response(request, response):
+        request_info = f"Request Method: {request.method}\nRequest URL: {request.url}\n"
+
+        if request.body:
+            request_info += f"Request Body: {request.body}\n"
+        if request.headers:
+            request_info += f"Request Headers: {json.dumps(dict(request.headers), indent=4, sort_keys=True)}\n"
         allure.attach(
-            body=response.text,
-            name="Response",
+            body=request_info,
+            name="Request Info",
             attachment_type=AttachmentType.TEXT,
             extension="txt",
         )
+
+        allure.attach(
+            body=str(response.status_code),
+            name="Response Status Code",
+            attachment_type=AttachmentType.TEXT,
+            extension="txt",
+        )
+
+        try:
+            resp_body_json = response.json()
+            resp_body_str = json.dumps(resp_body_json, indent=4, sort_keys=True)
+
+            if "updateflyoutcartsectionhtml" in resp_body_json:
+                html_code = resp_body_json["updateflyoutcartsectionhtml"]
+                formatted_html = re.sub(
+                    r">\s+<", "><", html_code
+                )  # Удаляем лишние пробелы между тегами
+                formatted_html = re.sub(
+                    r">\s+", ">", formatted_html
+                )  # Удаляем лишние пробелы после тегов
+                formatted_html = re.sub(
+                    r"\s+<", "<", formatted_html
+                )  # Удаляем лишние пробелы перед тегами
+                resp_body_json["updateflyoutcartsectionhtml"] = formatted_html
+                resp_body_str = json.dumps(resp_body_json, indent=4, sort_keys=True)
+        except ValueError:
+            resp_body_str = str(response.text)
+
+        allure.attach(
+            body=resp_body_str,
+            name="Response Body",
+            attachment_type=AttachmentType.JSON,
+            extension="json",
+        )
+
         allure.attach(
             body=str(response.cookies),
-            name="Cookies",
+            name="Response Cookies",
             attachment_type=AttachmentType.JSON,
             extension="json",
         )
@@ -37,9 +80,10 @@ class ApiHelper:
                 allow_redirects=False,
             )
             logger.info("Отправили запрос на авторизацию")
-            self.get_attach_data_response(response)
+
+            self.log_request_and_response(response.request, response)
             assert (
-                    "NOPCOMMERCE.AUTH" in response.cookies
+                "NOPCOMMERCE.AUTH" in response.cookies
             ), "Сервер не вернул куки NOPCOMMERCE.AUTH"
             return response.cookies.get_dict()
 
@@ -53,7 +97,7 @@ class ApiHelper:
                 allow_redirects=False,
             )
             logger.info("Отправили запрос на добавление книги в корзину")
-            self.get_attach_data_response(response)
+            self.log_request_and_response(response.request, response)
             assert response.json().get(
                 "success"
             ), "API не вернул успешное добавление книг в корзину"
@@ -69,7 +113,8 @@ class ApiHelper:
                 allow_redirects=False,
             )
             logger.info("Отправили запрос на добавление ноута в корзину")
-            self.get_attach_data_response(response)
+
+            self.log_request_and_response(response.request, response)
             assert response.json().get(
                 "success"
             ), "API не вернул успешное добавление ноутбука"

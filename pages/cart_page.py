@@ -17,6 +17,7 @@ class CartPage:
         self.title_in_cart = "h1"
         self.button_update_cart = "input[name='updatecart']"
         self.count_product_all = ".cart-item-row"
+        self.qty_input = ".qty-input"
 
     def open(self):
         with allure.step("Открываем страницу с корзиной"):
@@ -61,7 +62,7 @@ class CartPage:
             return qty_product
 
     def delete_all_product_in_cart(self):
-        with allure.step("Выбираем все товары в корзине"):
+        with allure.step("Выбираем и удаляем выбранный товар в корзине"):
             count_product = self.get_len_count_prodict_in_cart()
             for i in range(count_product):
                 checkboxes_product = browser.element(

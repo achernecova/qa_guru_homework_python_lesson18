@@ -2,7 +2,9 @@ import allure
 
 
 @allure.title("Добавление книг в корзину в корзину с удалением после завершения проверок")
-def test_add_product_book_and_assert_qty_and_count_product(prepared_cart, api_login, cookies):
+def test_add_product_book_and_assert_qty_and_count_product(
+    prepared_cart, api_login, cookies
+):
     cart = prepared_cart
 
     get_cookies_after_add_product = api_login.add_product_book(cookies)
@@ -11,8 +13,13 @@ def test_add_product_book_and_assert_qty_and_count_product(prepared_cart, api_lo
     cart.assert_qty_product_in_cart()
     assert cart.get_len_count_prodict_in_cart() == 1
 
-@allure.title("Добавление книги и ноута в корзину в корзину с удалением после завершения проверок")
-def test_add_two_products_and_assert_data_product_in_cart(prepared_cart, api_login, cookies):
+
+@allure.title(
+    "Добавление книги и ноута в корзину в корзину с удалением после завершения проверок"
+)
+def test_add_two_products_and_assert_data_product_in_cart(
+    prepared_cart, api_login, cookies
+):
     cart = prepared_cart
 
     api_login.add_product_book(cookies)
