@@ -1,0 +1,5 @@
+base_url = "https://demowebshop.tricentis.com/"
+LOGIN = "example1288@example.com"
+PASSWORD = "123456"
+api_login_url = base_url + "login"
+cart_page_url = base_url + "cart"
