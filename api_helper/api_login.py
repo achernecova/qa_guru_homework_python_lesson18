@@ -43,15 +43,9 @@ class ApiHelper:
 
             if "updateflyoutcartsectionhtml" in resp_body_json:
                 html_code = resp_body_json["updateflyoutcartsectionhtml"]
-                formatted_html = re.sub(
-                    r">\s+<", "><", html_code
-                )  # Удаляем лишние пробелы между тегами
-                formatted_html = re.sub(
-                    r">\s+", ">", formatted_html
-                )  # Удаляем лишние пробелы после тегов
-                formatted_html = re.sub(
-                    r"\s+<", "<", formatted_html
-                )  # Удаляем лишние пробелы перед тегами
+                formatted_html = re.sub(r">\s+<", "><", html_code)
+                formatted_html = re.sub(r">\s+", ">", formatted_html)
+                formatted_html = re.sub(r"\s+<", "<", formatted_html)
                 resp_body_json["updateflyoutcartsectionhtml"] = formatted_html
                 resp_body_str = json.dumps(resp_body_json, indent=4, sort_keys=True)
         except ValueError:
