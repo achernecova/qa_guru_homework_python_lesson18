@@ -65,6 +65,9 @@ class ApiHelper:
             extension="json",
         )
 
+        logger.info(resp_body_str)
+        logger.info(request_info)
+
     def login(self, email, password):
         with allure.step("Авторизуемся через API"):
             response = self.session.post(
